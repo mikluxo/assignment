@@ -1,5 +1,6 @@
 package com.mikluxo.assignment.services;
 
+import com.mikluxo.assignment.repository.IllegalArgumentException;
 import lombok.Builder;
 import lombok.NonNull;
 
@@ -68,6 +69,9 @@ public class QueryBuilder {
         // update tableName set id='id1' value='value1'
         // update tableName set id='id1' value='value1' where ....
         sb.append(tableName).append(" set ");
+        if (fieldNames == null || fieldValues == null || fieldNames.length != fieldValues.length) {
+            throw new IllegalArgumentException();
+        }
 
         for(int i = 0; i < fieldNames.length; ++i) {
             sb.append(fieldNames[i]).append("=").append("'").append(fieldValues[i]).append("'");

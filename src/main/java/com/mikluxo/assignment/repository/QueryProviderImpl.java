@@ -20,11 +20,14 @@ public class QueryProviderImpl implements QueryProvider {
         Query nativeQuery = manager.createNativeQuery(queryString);
 
         if (isWriteQuery(queryString)) {
-            nativeQuery.executeUpdate();
+            response.append(nativeQuery.executeUpdate());
         } else {
             List resultList = nativeQuery.getResultList();
+            if (resultList.isEmpty()) {
+                throw new NotFoundException();
+            }
             for (int i = 0; i < resultList.size(); ++i) {
-                Object[] strings = null;
+                Object[] strings;
                 if (resultList.get(i) instanceof String) {
                     strings = new Object[]{resultList.get(i)};
                 } else {
@@ -43,7 +46,7 @@ public class QueryProviderImpl implements QueryProvider {
         return response.toString();
     }
 
-    private boolean isWriteQuery(String queryString) {
+    public boolean isWriteQuery(String queryString) {
         return !queryString.toLowerCase().startsWith("select");
     }
 }

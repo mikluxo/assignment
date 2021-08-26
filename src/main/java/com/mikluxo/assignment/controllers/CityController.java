@@ -1,5 +1,6 @@
 package com.mikluxo.assignment.controllers;
 
+import com.mikluxo.assignment.repository.NotFoundException;
 import com.mikluxo.assignment.repository.QueryProvider;
 import com.mikluxo.assignment.services.QueryBuilder;
 import com.mikluxo.assignment.services.QueryType;
@@ -11,8 +12,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.websocket.server.PathParam;
 
 @RestController
 @RequestMapping(value = "/city")
@@ -37,36 +36,50 @@ public class CityController {
     @RequestMapping(value = "{id}", method = RequestMethod.GET, produces = {"application/json"})
     @ResponseStatus(HttpStatus.OK)
     public @ResponseBody String getCity(@PathVariable("id") String id) {
-        QueryBuilder build = QueryBuilder.builder().queryType(QueryType.SELECT).tableName(tableName)
-                .where("id = '" + id + "'").build();
+        String query = QueryBuilder.builder().queryType(QueryType.SELECT).tableName(tableName)
+                .where("id = '" + id + "'").build().getQuery();
 
-        return queryProvider.query(build.getQuery());
+        String result = queryProvider.query(query);
+        if (result.equalsIgnoreCase("")) {
+            throw new NotFoundException();
+        }
+        return result;
     }
 
     @RequestMapping(method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
     public void insertCity(String [] fields, String[] values) {
-        QueryBuilder build = QueryBuilder.builder().queryType(QueryType.INSERT)
-                .fieldNames(fields).tableName(tableName).fieldValues(values).build();
+        String query = QueryBuilder.builder().queryType(QueryType.INSERT)
+                .fieldNames(fields).tableName(tableName).fieldValues(values).build().getQuery();
 
-        queryProvider.query(build.getQuery());
+        String result = queryProvider.query(query);
+        if (result.equals("0")){
+            throw new NotFoundException();
+        }
     }
 
-    @RequestMapping(method = RequestMethod.PUT)
+    @RequestMapping(value = "{id}", method = RequestMethod.PUT)
     @ResponseStatus(HttpStatus.OK)
-    public void updateCity(String [] fields, String []values, String where) {
-        QueryBuilder build = QueryBuilder.builder().queryType(QueryType.UPDATE)
-                .fieldNames(fields).fieldValues(values).tableName(tableName).where(where).build();
+    public void updateCity(@PathVariable("id") String id, String [] fields, String []values) {
+        String query = QueryBuilder.builder().queryType(QueryType.UPDATE)
+                .fieldNames(fields).fieldValues(values).tableName(tableName)
+                .where("id = '" + id + "'").build().getQuery();
 
-        queryProvider.query(build.getQuery());
+        String result = queryProvider.query(query);
+        if (result.equalsIgnoreCase("0")) {
+            throw new NotFoundException();
+        }
     }
 
-    @RequestMapping(method = RequestMethod.DELETE)
+    @RequestMapping(value = "{id}", method = RequestMethod.DELETE)
     @ResponseStatus(HttpStatus.OK)
-    public void deleteCity(String where) {
-        QueryBuilder build = QueryBuilder.builder().queryType(QueryType.DELETE)
-                .tableName(tableName).where(where).build();
+    public void deleteCity(@PathVariable("id") String id) {
+        String query = QueryBuilder.builder().queryType(QueryType.DELETE)
+                .tableName(tableName).where("id = '" + id + "'").build().getQuery();
 
-        queryProvider.query(build.getQuery());
+        String result = queryProvider.query(query);
+        if (result.equals("0")) {
+            throw new NotFoundException();
+        }
     }
 }
