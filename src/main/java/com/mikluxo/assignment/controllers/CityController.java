@@ -5,11 +5,14 @@ import com.mikluxo.assignment.services.QueryBuilder;
 import com.mikluxo.assignment.services.QueryType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.websocket.server.PathParam;
 
 @RestController
 @RequestMapping(value = "/city")
@@ -22,11 +25,20 @@ public class CityController {
         this.queryProvider = queryProvider;
     }
 
-    @RequestMapping(method = RequestMethod.GET, produces = {"application/json"})
+    @RequestMapping(value = "list", method = RequestMethod.GET, produces = {"application/json"})
     @ResponseStatus(HttpStatus.OK)
     public @ResponseBody String getCities(String[] fields, String where) {
         QueryBuilder build = QueryBuilder.builder().queryType(QueryType.SELECT)
                 .fieldNames(fields).tableName(tableName).where(where).build();
+
+        return queryProvider.query(build.getQuery());
+    }
+
+    @RequestMapping(value = "{id}", method = RequestMethod.GET, produces = {"application/json"})
+    @ResponseStatus(HttpStatus.OK)
+    public @ResponseBody String getCity(@PathVariable("id") String id) {
+        QueryBuilder build = QueryBuilder.builder().queryType(QueryType.SELECT).tableName(tableName)
+                .where("id = '" + id + "'").build();
 
         return queryProvider.query(build.getQuery());
     }

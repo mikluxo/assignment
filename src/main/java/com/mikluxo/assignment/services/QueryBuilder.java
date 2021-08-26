@@ -98,7 +98,7 @@ public class QueryBuilder {
 
     private void addWhereIfRequired(StringBuilder sb) {
         if(where != null && !where.isEmpty()) {
-            sb.append(where);
+            sb.append(" WHERE ").append(where);
         }
     }
 }
