@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(value = "/city")
 public class CityController {
     private static final String tableName = "city";
+    private static final String NO_CHANGES_IN_DB = "0";
     private final QueryProvider queryProvider;
 
     @Autowired
@@ -53,7 +54,7 @@ public class CityController {
                 .fieldNames(fields).tableName(tableName).fieldValues(values).build().getQuery();
 
         String result = queryProvider.query(query);
-        if (result.equals("0")){
+        if (result.equals(NO_CHANGES_IN_DB)){
             throw new NotFoundException();
         }
     }
@@ -66,7 +67,7 @@ public class CityController {
                 .where("id = '" + id + "'").build().getQuery();
 
         String result = queryProvider.query(query);
-        if (result.equalsIgnoreCase("0")) {
+        if (result.equalsIgnoreCase(NO_CHANGES_IN_DB)) {
             throw new NotFoundException();
         }
     }
@@ -78,7 +79,8 @@ public class CityController {
                 .tableName(tableName).where("id = '" + id + "'").build().getQuery();
 
         String result = queryProvider.query(query);
-        if (result.equals("0")) {
+
+        if (result.equals(NO_CHANGES_IN_DB)) {
             throw new NotFoundException();
         }
     }
